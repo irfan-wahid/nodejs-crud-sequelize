@@ -10,4 +10,6 @@ router.post("/", controller.user.createNew);
 router.patch("/:id", controller.user.updateData);
 router.delete("/:id", controller.user.deleteData);
 
+router.get("/transaction/:user_id", controller.transaction.getUserTransaction);
+
 module.exports = router;

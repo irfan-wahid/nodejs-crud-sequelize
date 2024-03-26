@@ -1,7 +1,9 @@
 const userModel = require('./userModel');
+const transactionModel = require('./transactionModel');
 
-const model = {};
-
-model.user = userModel;
+const model = {
+    user : userModel,
+    transaction : transactionModel
+};
 
 module.exports = model;

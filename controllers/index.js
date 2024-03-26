@@ -1,6 +1,9 @@
 const userController = require ('./userController');
-var controllers = {};
+const transactionController = require ('./transactionController');
 
-controllers.user = userController;
+var controllers = {
+    transaction : transactionController,
+    user : userController,
+};
 
 module.exports = controllers;

@@ -2,29 +2,38 @@ const model = require('../models/index');
 
 const {Op} = require('sequelize');
 
+const pagination = require('../pagination')
+
 const controller = {};
 
 //function get all data
-controller.getAll = async (req,res) => {
-    try{
-        const userData = await model.user.findAll();
-        if (userData.length > 0){
-            res
-                .status(200)
-                .json({
-                    message: "Connection Successfull",
-                    data: userData,
-                })
-        }else{
-            res.status(500).json({
-                message:"Connection Failed", 
-                data : [],
+controller.getAll = async (req, res) => {
+    const page = req.query.page ? parseInt(req.query.page) : 0;
+    const size = req.query.size ? parseInt(req.query.size) : 10;
+    const { limit, offset } = pagination.parse(page, size);
+
+    try {
+        const userData = await model.user.findAndCountAll({
+            raw: false,
+            order: [["id", 'desc']],
+            ...req.query.pagination == 'true' && { offset, limit }
+        });
+
+        if (userData.count > 0) {
+            res.status(200).json({
+                message: "Connection Successful",
+                data: pagination.data(userData, page, size),
             });
-        };
-    }catch (error){
-        res.status(404).json({message: "error"});
+        } else {
+            res.status(500).json({
+                message: "Connection Failed",   
+                data: [],
+            });
+        }
+    } catch (error) {
+        res.status(404).json({ message: "Error" });
     }
-}
+};
 
 // get by username
 controller.getUsername = async (req, res) => {
@@ -72,16 +81,14 @@ controller.createNew = async (req, res) =>{
         }else{
             await model.user.create({
                 username : req.body.username,
-                password : req.body.password,
-                token : req.body.username + req.body.password,
+                password : req.body.password
             })
             .then((result) => {
                 res.status(201).json({
                     message: "user successful created",
                     data: {
                         username: req.body.username,
-                        password: req.body.password,
-                        token: req.body.username + req.body.password,
+                        password: req.body.password
                     },
                 });
             });
@@ -106,8 +113,7 @@ controller.updateData = async (req, res) => {
                 await model.user.update(
                     {
                         username : req.body.username,
-                        password : req.body.password,
-                        token : req.body.username + req.body.password,
+                        password : req.body.password
                     },
                     {
                         where : {
@@ -120,8 +126,7 @@ controller.updateData = async (req, res) => {
                     data: {
                         id: req.body.id,
                         username: req.body.username,
-                        password: req.body.password,
-                        token: req.body.username + req.body.password,
+                        password: req.body.password
                     },
                 });
             }else{
@@ -160,6 +165,27 @@ controller.deleteData = async (req, res) => {
             res.status(404).json({
                 message: "Data not found",
             });
+        }
+    }catch (error){
+        res.status(404).json({message: "error"});
+    }
+}
+
+controller.login = async (req, res) =>{
+    try{
+        const result = await model.user.findOne({
+            where:{
+                username: req.body.username,
+                password: req.body.password
+            }
+        });
+
+        if (result){
+            res.status(200).json({
+                message: "login berhasil",
+            });
+        }else{
+            res.status(500).json({message: "username atau password salah"});
         }
     }catch (error){
         res.status(404).json({message: "error"});

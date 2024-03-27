@@ -2,7 +2,7 @@ const sequelize = require('sequelize');
 const db = require("../database.js");
 
 var user = db.define(
-    "nodejs_sequelize",
+    "user",
     {
         id:{
             type: sequelize.INTEGER, 
@@ -13,10 +13,7 @@ var user = db.define(
         },
         password:{
             type: sequelize.STRING
-        },
-        token:{
-            type: sequelize.STRING
-        },
+        }
     },
     {
         //menghilangkan akhiran s pada table

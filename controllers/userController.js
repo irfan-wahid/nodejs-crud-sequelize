@@ -1,5 +1,7 @@
 const model = require('../models/index');
 
+const crypto = require('crypto')
+
 const {Op} = require('sequelize');
 
 const pagination = require('../pagination')
@@ -69,7 +71,7 @@ controller.createNew = async (req, res) =>{
         var checkData = await model.user.findAll({
             where: {
                 username : {
-                    [Op.like] : `%${req.body.username}`
+                    [Op.eq] : req.body.username
                 },
             }
         });
@@ -81,14 +83,14 @@ controller.createNew = async (req, res) =>{
         }else{
             await model.user.create({
                 username : req.body.username,
-                password : req.body.password
+                password : crypto.createHash('sha256').update(req.body.password).digest('hex')
             })
             .then((result) => {
                 res.status(201).json({
                     message: "user successful created",
                     data: {
                         username: req.body.username,
-                        password: req.body.password
+                        password: crypto.createHash('sha256').update(req.body.password).digest('hex')
                     },
                 });
             });
@@ -176,7 +178,7 @@ controller.login = async (req, res) =>{
         const result = await model.user.findOne({
             where:{
                 username: req.body.username,
-                password: req.body.password
+                password: crypto.createHash('sha256').update(req.body.password).digest('hex')
             }
         });
 

@@ -67,6 +67,7 @@ controller.getUsername = async (req, res) => {
 
 //create new data
 controller.createNew = async (req, res) =>{
+    const salt = "ini project nodejs"
     try{
         var checkData = await model.user.findAll({
             where: {
@@ -83,14 +84,14 @@ controller.createNew = async (req, res) =>{
         }else{
             await model.user.create({
                 username : req.body.username,
-                password : crypto.createHash('sha256').update(req.body.password).digest('hex')
+                password : salt + crypto.createHash('sha256').update(req.body.password).digest('hex')
             })
             .then((result) => {
                 res.status(201).json({
                     message: "user successful created",
                     data: {
                         username: req.body.username,
-                        password: crypto.createHash('sha256').update(req.body.password).digest('hex')
+                        password: salt + crypto.createHash('sha256').update(req.body.password).digest('hex')
                     },
                 });
             });
@@ -174,11 +175,13 @@ controller.deleteData = async (req, res) => {
 }
 
 controller.login = async (req, res) =>{
+    const salt = "ini project nodejs"
+
     try{
         const result = await model.user.findOne({
             where:{
                 username: req.body.username,
-                password: crypto.createHash('sha256').update(req.body.password).digest('hex')
+                password: salt + crypto.createHash('sha256').update(req.body.password).digest('hex')
             }
         });
 
